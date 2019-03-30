@@ -95,6 +95,34 @@ if (action == "concert-this") {
 
 // ======================== SPOTIFY SEARCH ======================== //
 
+else if (action == "spotify-this-song") {
+
+    // =================== Usage ======================= //
+    // node liri.js spotify-this-song '<song name here>'
+    // ================================================= //
+
+    spotify
+    .search({ type: 'track', query: searchTerms })
+    .then(function(response) {
+        console.log(response.tracks.items[0].artists);
+
+        // This will show the following information about the song in your terminal/bash window
+        console.log("\n========================\nThe song:\n" + chalk.yellow(searchTerms.toUpperCase()));
+            
+        // The artist(s)
+        console.log("========================\nby the artist(s):\n" + chalk.green(response.tracks.items[0].album.artists[0].name));
+
+        // A preview link of the song from Spotify
+        console.log("Click here for a preview link:\n" + chalk.green(response.tracks.items[0].external_urls.spotify));
+
+        // The album that the song is from
+        var releaseDate = moment(response.tracks.items[0].album.release_day).format('YYYY');
+        console.log("from the album:\n" + chalk.green(response.tracks.items[0].album.name) + " (" + chalk.green(releaseDate) + ")" + "\n========================\n");
+    })
+    .catch(function(err) {
+        console.log(err);
+    });
+
     // If no song is provided then your program will default to "The Sign" by Ace of Base.
 
     // You will utilize the node-spotify-api package in order to retrieve song information from the Spotify API.
