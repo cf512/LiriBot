@@ -5,19 +5,6 @@ var axios = require("axios");
 var moment = require('moment');
 var chalk = require("chalk");
 
-const getCircularReplacer = () => {
-    const seen = new WeakSet();
-    return (key, value) => {
-      if (typeof value === "object" && value !== null) {
-        if (seen.has(value)) {
-          return;
-        }
-        seen.add(value);
-      }
-      return value;
-    };
-  };
-
 // code required to import the keys.js file and store it in a variable
 var keys = require("./keys.js");
 
@@ -26,33 +13,20 @@ var spotify = new Spotify(keys.spotify);
 // test whether it logs output
 // console.log(spotify);
 
-// ============================================================= //
-// Make it so liri.js can take in one of the following commands: //
-//
-// * concert-this
-//
-// * spotify-this-song
-//
-// * movie-this
-//
-// * do-what-it-says
-//
-// ============================================================= //
-
 // ======================== DATA CAPTURE ======================== //
 
     // variable to capture the third element after "node liri.js ___"
     var action = process.argv[2];
-    // var searchTerms = process.argv.slice(3).join(" ");
-    var searchTerms = process.argv[3];
-    // var artist = "alabama";
+    // variable to capture the fourth element and beyond after "node liri.js ___"
+    var searchTerms = process.argv.slice(3).join(" ");
 
 // ======================== BANDS IN TOWN ======================== //
 
 if (action == "concert-this") {
 
-    // USAGE:
+    // =================== Usage ======================= //
     // node liri.js concert-this <artist/band name here>
+    // ================================================= //
 
     // This will search the Bands in Town Artist Events API ("https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp") for an artist and render the following information about each event to the terminal:
 
@@ -101,10 +75,20 @@ else if (action == "spotify-this-song") {
     // node liri.js spotify-this-song '<song name here>'
     // ================================================= //
 
+    // If no song is provided then your program will default to "The Sign" by Ace of Base.
+    var searchTerms = "";
+    if (process.argv[3]){
+        searchTerms =  process.argv.slice(3).join(" ");
+    }
+    else {
+        searchTerms = "the sign ace of base";
+        console.log("We'll search for The Sign by Ace of Base since you didn't specify.");
+    }
+
     spotify
     .search({ type: 'track', query: searchTerms })
     .then(function(response) {
-        console.log(response.tracks.items[0].artists);
+        // console.log(response.tracks.items[0].artists);
 
         // This will show the following information about the song in your terminal/bash window
         console.log("\n========================\nThe song:\n" + chalk.yellow(searchTerms.toUpperCase()));
@@ -122,25 +106,71 @@ else if (action == "spotify-this-song") {
     .catch(function(err) {
         console.log(err);
     });
-
-    // If no song is provided then your program will default to "The Sign" by Ace of Base.
-
-    // You will utilize the node-spotify-api package in order to retrieve song information from the Spotify API.
-
-    // The Spotify API requires you sign up as a developer to generate the necessary credentials. You can follow these steps in order to generate a client id and client secret:
-
-    // Step One: Visit https://developer.spotify.com/my-applications/#!/
-
-    // Step Two: Either login to your existing Spotify account or create a new one (a free account is fine) and log in.
-
-    // Step Three: Once logged in, navigate to https://developer.spotify.com/my-applications/#!/applications/create to register a new application to be used with the Spotify API. You can fill in whatever you'd like for these fields. When finished, click the "complete" button.
-
-    // Step Four: On the next screen, scroll down to where you see your client id and client secret. Copy these values down somewhere, you'll need them to use the Spotify API and the node-spotify-api package.
-
 }
-// else if (action == "movie-this") {
+
+// ======================== OMDB SEARCH ======================== //
+
+else if (action == "movie-this") {
+
+    // =================== Usage ======================= //
+    // node liri.js movie-this <movie title here>
+    // ================================================= //
+
+    if (process.argv[3]){
+        searchTerms =  process.argv.slice(3).join(" ");
+    }
+    else {
+        searchTerms = "Mr. Nobody";
+        console.log("We'll search for Mr. Nobody since you didn't specify.");
+    }
+
+    // This will search the OMDB API ("https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp") for an artist and render the following information about each event to the terminal:
+
+    axios.get("https://www.omdbapi.com/?t=" + searchTerms + "&apikey=trilogy")
+        
+    .then(function(response) {
+
+        // This will output the following information to your terminal/bash window:
+
+        // * Title of the movie.
+
+        console.log("\n========================\nMovie-This (the results):\n" + chalk.yellow(response.data.Title.toUpperCase()));
+
+        // * Year the movie came out.
+        console.log("from the year:\n" + chalk.green(response.data.Year));
+
+        // * IMDB Rating of the movie.
+        console.log("with an IMDB rating:\n" + chalk.green(response.data.imdbRating));
+
+        // * Rotten Tomatoes Rating of the movie.
+        console.log("with a Rotten Tomatoes rating:\n" + chalk.green(response.data.Ratings[1].Value));
+
+        // * Country where the movie was produced.
+        console.log("which was produced in the country:\n" + chalk.green(response.data.Country));
+
+        // * Language of the movie.
+        console.log("in the language of:\n" + chalk.green(response.data.Language));
+
+        // * Plot of the movie.
+        console.log("with a plot involving:\n" + chalk.green(response.data.Plot));
+        
+        // * Actors in the movie.
+        console.log("and actors in the movie including:\n" + chalk.green(response.data.Actors) + "\n========================\n");
+        })
+
+    .catch(function(err) {
+    console.log(err);
+    });
+
+
+    // If the user doesn't type a movie in, the program will output data for the movie 'Mr. Nobody.'
+
+    // If you haven't watched "Mr. Nobody," then you should: http://www.imdb.com/title/tt0485947/
+
+    // It's on Netflix!
+
+    // You'll use the axios package to retrieve data from the OMDB API. Like all of the in-class activities, the OMDB API requires an API key. You may use trilogy.
     
 // }
 // else if (action == "do-what-it-says") {
-
-// }
+}
