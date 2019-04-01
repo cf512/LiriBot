@@ -4,6 +4,7 @@ var Spotify = require('node-spotify-api');
 var axios = require("axios");
 var moment = require('moment');
 var chalk = require("chalk");
+var fs = require("fs");
 
 // code required to import the keys.js file and store it in a variable
 var keys = require("./keys.js");
@@ -120,6 +121,7 @@ else if (action == "movie-this") {
         searchTerms =  process.argv.slice(3).join(" ");
     }
     else {
+        // If the user doesn't type a movie in, the program will output data for the movie 'Mr. Nobody.'
         searchTerms = "Mr. Nobody";
         console.log("We'll search for Mr. Nobody since you didn't specify.");
     }
@@ -161,16 +163,41 @@ else if (action == "movie-this") {
     .catch(function(err) {
     console.log(err);
     });
-
-
-    // If the user doesn't type a movie in, the program will output data for the movie 'Mr. Nobody.'
-
-    // If you haven't watched "Mr. Nobody," then you should: http://www.imdb.com/title/tt0485947/
-
-    // It's on Netflix!
-
-    // You'll use the axios package to retrieve data from the OMDB API. Like all of the in-class activities, the OMDB API requires an API key. You may use trilogy.
     
-// }
-// else if (action == "do-what-it-says") {
+}
+else if (action == "do-what-it-says") {
+
+    fs.readFile("random.txt", "utf8", function(error, data) {
+
+    // If the code experiences any errors it will log the error to the console.
+    if (error) {
+        return console.log(error);
+    }
+    
+    var searchTerms = data;
+
+    spotify
+    .search({ type: 'track', query: searchTerms })
+    .then(function(response) {
+        // console.log(response.tracks.items[0].artists);
+
+        // This will show the following information about the song in your terminal/bash window
+        console.log("\n========================\nThe song:\n" + chalk.yellow(searchTerms.toUpperCase()));
+            
+        // The artist(s)
+        console.log("========================\nby the artist(s):\n" + chalk.green(response.tracks.items[0].album.artists[0].name));
+
+        // A preview link of the song from Spotify
+        console.log("Click here for a preview link:\n" + chalk.green(response.tracks.items[0].external_urls.spotify));
+
+        // The album that the song is from
+        var releaseDate = moment(response.tracks.items[0].album.release_day).format('YYYY');
+        console.log("from the album:\n" + chalk.green(response.tracks.items[0].album.name) + " (" + chalk.green(releaseDate) + ")" + "\n========================\n");
+    })
+    .catch(function(err) {
+        console.log(err);
+    });
+      
+    });
+
 }
