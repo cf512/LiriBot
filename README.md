@@ -28,4 +28,4 @@ Using the fs Node package, we read the text inside of random.txt and then use it
 
 ---
 
-For posterity, the original assignment notes can be found here: [assignment.md](https://github.com/cf512/LiriBot/blob/master/README.md). 
+For posterity, the original assignment notes can be found here: [assignment.md](https://github.com/cf512/LiriBot/blob/master/assignment.md). 
